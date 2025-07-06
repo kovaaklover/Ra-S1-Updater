@@ -81,11 +81,11 @@ header = ['SteamID','Place','Player','Rank','Points', '1w4ts reload','Wide Wall 
 scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
 
 # JSON CREDENTIAL FILE PATH (DONT NEED THIS IN THE ONLINE VERSION)
-creds = ServiceAccountCredentials.from_json_keyfile_name('C:\\Users\\jmolv\\Documents\\Python\\light-cathode-438221-f7-2204f7f61353.json', scope)
+#creds = ServiceAccountCredentials.from_json_keyfile_name('C:\\Users\\jmolv\\Documents\\Python\\light-cathode-438221-f7-2204f7f61353.json', scope)
 
 # JSON CREDENTIAL FILE PATH (NEED FOR GITHUB ACTION)
-#creds_dict = json.loads(os.getenv('GSPREAD_CREDENTIALS'))
-#creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+creds_dict = json.loads(os.getenv('GSPREAD_CREDENTIALS'))
+creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 
 # AUTHORIZE THE CLIENT
 client = gspread.authorize(creds)
