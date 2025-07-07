@@ -142,7 +142,7 @@ for steam_id, values in Score_Dic_S.items():
         # SEE IF SCORE CHANGED
         for i in range(4, 28):
             if float(old_data_dict[steam_id][i+24]) != values[i+24]:
-                row = [values[1], f'{header[i+25]}: Score Increase!', values[i+24], it]
+                row = [values[1], f'{header[i+5]}: Score Increase!', values[i+24], it]
                 change_rows.append(row)
 
 
