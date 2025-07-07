@@ -8,7 +8,6 @@ from oauth2client.service_account import ServiceAccountCredentials
 Steam_IDs = [76561198061001488, 76561199742787176, 76561199070216446, 76561199245857584]
 Names = ['Veqzei', 'Kisen', 'Joe', 'Viagraa Falls']
 
-
 Ranks = ["Unranked", "Diamond", "Master", "Grandmaster", "Immortal", "Archon", "Divine"]
 Score_Dic = {}
 session = requests.Session()
