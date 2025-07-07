@@ -98,9 +98,10 @@ sheet1 = client.open('S1_RA').worksheet('History')
 all_values = sheet.get_all_values()
 old_data_dict = {}
 for row in all_values[1:]:  # skip the header row at index 0
-    key = row[0]          # first column as key
-    values = row[1:]      # rest of the columns as list of values
+    key = int(row[0])         # first column as key
+    values = row[1:]     # rest of the columns as list of values
     old_data_dict[key] = values
+
 
 
 # READ ALL CHANGE DATA TO A LIST
@@ -112,12 +113,11 @@ it = int(last_row[-1]) + 1
 
 # CHECK FOR CHANGES
 for steam_id, values in Score_Dic_S.items():
-
     if steam_id in old_data_dict:
 
         # SEE IF PLACE CHANGED
-        if old_data_dict[steam_id][0] != values[0]:
-            if values[0] > old_data_dict[steam_id][0]:
+        if int(old_data_dict[steam_id][0]) != values[0]:
+            if values[0] > int(old_data_dict[steam_id][0]):
                 row = [values[1], 'Place Increase!', values[0], it]
                 change_rows.append(row)
             else:
@@ -130,7 +130,7 @@ for steam_id, values in Score_Dic_S.items():
             change_rows.append(row)
 
         # SEE IF POINT CHANGED
-        if old_data_dict[steam_id][3] != values[3]:
+        if int(old_data_dict[steam_id][3]) != values[3]:
             row = [values[1], 'Point Increase!', values[3], it]
             change_rows.append(row)
 
@@ -142,7 +142,7 @@ for steam_id, values in Score_Dic_S.items():
 
         # SEE IF SCORE CHANGED
         for i in range(4, 28):
-            if old_data_dict[steam_id][i] != values[i+24]:
+            if float(old_data_dict[steam_id][i+24]) != values[i+24]:
                 row = [values[1], f'{header[i]}: Score Increase!', values[i+24], it]
                 change_rows.append(row)
 
@@ -157,8 +157,9 @@ sheet.append_row(header)
 # SEND DATA FROM DICTIONARY TO ARRAY
 rows_to_update = []
 for steam_id, values in Score_Dic_S.items():
-    row = [steam_id] + values
+    row = [str(steam_id)] + values
     rows_to_update.append(row)
+
 
 # UPDATE GOOGLE SHEET WITH ALL ARRAY DATA
 start_cell = 'A2'
