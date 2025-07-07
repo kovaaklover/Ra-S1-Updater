@@ -4,7 +4,7 @@ import requests
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
-# ITERATE THROUGH STEAM USER IDS NOTE MAY NEED TO ADD MORE USERS?
+# ITERATE THROUGH STEAM USER IDS (ADD STEAM IDS AND NAMES AS SHOWN BELOW)
 Steam_IDs = [76561198061001488, 76561199742787176, 76561199070216446, 76561199245857584]
 Names = ['Veqzei', 'Kisen', 'Joe', 'Viagraa Falls']
 
