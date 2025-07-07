@@ -136,13 +136,13 @@ for steam_id, values in Score_Dic_S.items():
         # SEE IF A RANK CHANGED
         for i in range(4, 28):
             if old_data_dict[steam_id][i] != values[i]:
-                row = [values[1], f'{header[i]}: Rank Increase!', values[i], it]
+                row = [values[1], f'{header[i+1]}: Rank Increase!', values[i], it]
                 change_rows.append(row)
 
         # SEE IF SCORE CHANGED
         for i in range(4, 28):
             if float(old_data_dict[steam_id][i+24]) != values[i+24]:
-                row = [values[1], f'{header[i+24]}: Score Increase!', values[i+24], it]
+                row = [values[1], f'{header[i+25]}: Score Increase!', values[i+24], it]
                 change_rows.append(row)
 
 
