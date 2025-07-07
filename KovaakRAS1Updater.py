@@ -143,7 +143,7 @@ for steam_id, values in Score_Dic_S.items():
 
 # CLEAR EXISTING DATA IN GOOGLE SHEET
 sheet.clear()
-sheet1.clear()
+#sheet1.clear()
 
 # WRITE HEADERS TO FIRST ROW
 sheet.append_row(header)
