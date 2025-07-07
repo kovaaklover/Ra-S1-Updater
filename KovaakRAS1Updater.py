@@ -86,7 +86,7 @@ creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 # AUTHORIZE THE CLIENT
 client = gspread.authorize(creds)
 
-# OPEN GOOGLE SHEET
+# OPEN GOOGLE SHEETs
 sheet = client.open('S1_RA').worksheet('Discord Ranks')
 sheet1 = client.open('S1_RA').worksheet('History')
 
@@ -97,8 +97,6 @@ for row in all_values[1:]:  # skip the header row at index 0
     key = int(row[0])         # first column as key
     values = row[1:]     # rest of the columns as list of values
     old_data_dict[key] = values
-
-
 
 # READ ALL CHANGE DATA TO A LIST
 change_rows = sheet1.get_all_values()
