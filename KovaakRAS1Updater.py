@@ -126,9 +126,9 @@ for steam_id, values in Score_Dic_S.items():
             change_rows.append(row)
 
         # SEE IF POINT CHANGED
-        if int(old_data_dict[steam_id][3]) != values[3]:
-            row = [values[1], 'Point Increase!', values[3], it]
-            change_rows.append(row)
+    #    if int(old_data_dict[steam_id][3]) != values[3]:
+    #        row = [values[1], 'Point Increase!', values[3], it]
+    #        change_rows.append(row)
 
         # SEE IF A RANK CHANGED
         for i in range(4, 28):
