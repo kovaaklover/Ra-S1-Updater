@@ -140,7 +140,7 @@ def send_discord_notification(row):
         #Discord embed payload
         payload = {
             "embeds": [{
-                "title": "RankAim S1 Progress Update",
+                "title": "Rank Progress Update",
                 "description": message,
                 "color": color,
                 "timestamp": None,
