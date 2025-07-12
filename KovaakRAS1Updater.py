@@ -13,6 +13,7 @@ Names = ['Veqzei', 'Kisen', 'Joe', 'Viagraa Falls']
 
 Ranks = ["Unranked", "Diamond", "Master", "Grandmaster", "Immortal", "Archon", "Divine"]
 Score_Dic = {}
+Rank_Info = {}  # rank and scenario info for Discord notifications
 session = requests.Session()
 
 for i in range(len(Steam_IDs)):
@@ -22,6 +23,7 @@ for i in range(len(Steam_IDs)):
     if Steam_IDs[i] not in Score_Dic:
         Score_Dic[Steam_IDs[i]] = [-2] * (52)
         Score_Dic[Steam_IDs[i]][1] = Names[i]
+        Rank_Info[Steam_IDs[i]] = {}
 
     # ITERATE THROUGH EACH CATEGORY
     for category_name, category_data in r["categories"].items():
@@ -30,6 +32,14 @@ for i in range(len(Steam_IDs)):
         for scenario_name, scenario_data in category_data["scenarios"].items():
             Score_Dic[Steam_IDs[i]][Count] = scenario_data['scenario_rank']  # RANK
             Score_Dic[Steam_IDs[i]][Count+24] = scenario_data['score']/100  # SCORE
+            
+            # Store rank information for Discord notifications
+            Rank_Info[Steam_IDs[i]][scenario_name] = {
+                'current_rank': scenario_data['scenario_rank'],
+                'rank_maxes': scenario_data['rank_maxes'],
+                'current_score': scenario_data['score']/100
+            }
+            
             Count += 1
 
 session.close()
@@ -108,8 +118,47 @@ change_rows = sheet1.get_all_values()
 last_row = change_rows[-1]
 it = int(last_row[-1]) + 1
 
+# FUNCTION TO GET RANK PROGRESS INFO
+def get_rank_progress_info(steam_id, scenario_name, current_score):
+    """Get rank progress information for a player's scenario"""
+    try:
+        if steam_id in Rank_Info and scenario_name in Rank_Info[steam_id]:
+            rank_data = Rank_Info[steam_id][scenario_name]
+            current_rank = rank_data['current_rank']
+            rank_maxes = rank_data['rank_maxes']
+            
+            if current_rank >= len(rank_maxes):
+                return f"**{Ranks[current_rank]}** DIVINE!", 0x9932cc
+            
+            current_rank_name = Ranks[current_rank] if current_rank < len(Ranks) else "Unknown"
+            next_rank_name = Ranks[current_rank + 1] if current_rank + 1 < len(Ranks) else "Max"
+            
+            if current_rank < len(rank_maxes):
+                next_rank_requirement = rank_maxes[current_rank]
+                
+                if current_score >= next_rank_requirement:
+                    # Player has already met the requirement for next rank
+                    return (f"**{current_rank_name}** → **{next_rank_name}**\n"
+                           f"`██████████` 100%+\n"
+                           f"*{next_rank_name} rank!*"), 0x9932cc
+                else:
+                    # Player still needs more score
+                    progress = (current_score / next_rank_requirement) * 100
+                    score_needed = next_rank_requirement - current_score
+                    
+                    filled_blocks = int(progress / 10)
+                    progress_bar = "█" * filled_blocks + "░" * (10 - filled_blocks)
+                    
+                    return (f"**{current_rank_name}** → **{next_rank_name}**\n"
+                           f"`{progress_bar}` {progress:.1f}%\n"
+                           f"*{score_needed:.1f} more needed for {next_rank_name}*"), 0x9932cc
+            
+        return "", 0x9932cc
+    except:
+        return "", 0x9932cc
+
 # FUNCTION TO SEND DISCORD NOTIFICATION
-def send_discord_notification(row):
+def send_discord_notification(row, steam_id=None):
     try:
         player_name = row[0]
         change_type = row[1]
@@ -131,7 +180,17 @@ def send_discord_notification(row):
             color = 0x0099ff  
         elif "Score Increase" in change_type:
             scenario = change_type.replace(": Score Increase!", "")
-            message = f"**{player_name}** set a new high score in **{scenario}**: **{new_value}**!"
+            base_message = f"**{player_name}** set a new high score in **{scenario}**: **{new_value}**!"
+            
+            # Add rank progress information if steam_id is provided
+            if steam_id:
+                rank_progress, color = get_rank_progress_info(steam_id, scenario, float(new_value))
+                if rank_progress:
+                    message = f"{base_message}\n\n{rank_progress}"
+                else:
+                    message = base_message
+            else:
+                message = base_message
             color = 0x9932cc  
         else:
             message = f"ERROR: **{player_name}**: {change_type} - {new_value}"
@@ -145,7 +204,7 @@ def send_discord_notification(row):
                 "color": color,
                 "timestamp": None,
                 "footer": {
-                    "text": "RankAim S1 Tracker"
+                    "text": "rA S1 Tracker"
                 }
             }]
         }
@@ -169,17 +228,17 @@ for steam_id, values in Score_Dic_S.items():
             if values[0] > int(old_data_dict[steam_id][0]):
                 row = [values[1], 'Place Increase!', values[0], it]
                 change_rows.append(row)
-                send_discord_notification(row)
+                send_discord_notification(row, steam_id)
             else:
                 row = [values[1], 'Place Decrease', values[0], it]
                 change_rows.append(row)
-                send_discord_notification(row)
+                send_discord_notification(row, steam_id)
 
         # SEE IF RA RANK CHANGED
         if old_data_dict[steam_id][2] != values[2]:
             row = [values[1], 'Overall Rank Increase!', values[2], it]
             change_rows.append(row)
-            send_discord_notification(row)
+            send_discord_notification(row, steam_id)
 
         # SEE IF POINT CHANGED
     #    if int(old_data_dict[steam_id][3]) != values[3]:
@@ -191,14 +250,14 @@ for steam_id, values in Score_Dic_S.items():
             if old_data_dict[steam_id][i] != values[i]:
                 row = [values[1], f'{header[i+1]}: Rank Increase!', values[i], it]
                 change_rows.append(row)
-                send_discord_notification(row)
+                send_discord_notification(row, steam_id)
 
         # SEE IF SCORE CHANGED
         for i in range(4, 28):
             if float(old_data_dict[steam_id][i+24]) != values[i+24]:
                 row = [values[1], f'{header[i+1]}: Score Increase!', values[i+24], it]
                 change_rows.append(row)
-                send_discord_notification(row)
+                send_discord_notification(row, steam_id)
 
 
 # CLEAR EXISTING DATA IN GOOGLE SHEET
