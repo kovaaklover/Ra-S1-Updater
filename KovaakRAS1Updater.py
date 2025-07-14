@@ -33,7 +33,7 @@ for i in range(len(Steam_IDs)):
             Score_Dic[Steam_IDs[i]][Count] = scenario_data['scenario_rank']  # RANK
             Score_Dic[Steam_IDs[i]][Count+24] = scenario_data['score']/100  # SCORE
             
-            # Store rank information for Discord notifications
+            # Store rank information for scenarios to be sent as Discord notification
             Rank_Info[Steam_IDs[i]][scenario_name] = {
                 'current_rank': scenario_data['scenario_rank'],
                 'rank_maxes': scenario_data['rank_maxes'],
@@ -143,10 +143,13 @@ def get_rank_progress_info(steam_id, scenario_name, current_score):
                            f"*{next_rank_name} rank!*"), 0x9932cc
                 else:
                     # Player still needs more score
-                    progress = (current_score / next_rank_requirement) * 100
+                    current_rank_requirement = rank_maxes[current_rank-1] if current_rank > 0 else 0
+                    progress = ((current_score-current_rank_requirement) / (next_rank_requirement-current_rank_requirement)) * 100
                     score_needed = next_rank_requirement - current_score
                     
                     filled_blocks = int(progress / 10)
+                    progress = max(0, min(100, progress))  # Ensure 0-100%
+                    filled_blocks = max(0, min(10, filled_blocks))  # Ensure 0-10 blocks
                     progress_bar = "█" * filled_blocks + "░" * (10 - filled_blocks)
                     
                     return (f"**{current_rank_name}** → **{next_rank_name}**\n"
